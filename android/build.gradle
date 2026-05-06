@@ -37,6 +37,9 @@ subprojects {
 subprojects { subproject ->
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
+        if (androidExt != null && androidExt.hasProperty('buildFeatures')) {
+            androidExt.buildFeatures.buildConfig = true
+        }
         if (androidExt != null && androidExt.hasProperty('namespace') && androidExt.namespace == null) {
             def manifestFile = subproject.file('src/main/AndroidManifest.xml')
             def namespaceFromManifest = null
@@ -54,6 +57,8 @@ subprojects { subproject ->
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+
 
 
 
