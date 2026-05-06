@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vocechat_client/app.dart';
+import 'package:vocechat_client/branded_config.dart';
 import 'package:vocechat_client/shared_funcs.dart';
 import 'package:vocechat_client/ui/app_alert_dialog.dart';
 import 'package:vocechat_client/ui/app_colors.dart';
@@ -24,7 +25,7 @@ class SettingsAboutPage extends StatelessWidget {
   final appStoreUrl = "https://apps.apple.com/app/vocechat/id1631779678";
   final googlePlayUrl =
       "https://play.app.goo.gl/?link=https://play.google.com/store/apps/details?id=com.privoce.vocechatclient";
-  final vocechatUrl = "https://voce.chat/";
+  final vocechatUrl = "https://github.com/tfcygvuhb/vocechat-client";
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +69,7 @@ class SettingsAboutPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text("VoceChat", style: AppTextStyles.titleLarge),
+        Text(BrandedConfig.appName, style: AppTextStyles.titleLarge),
         FutureBuilder<String>(
             future: _getAppVersion(),
             builder: (context, snapshot) {
@@ -206,7 +207,7 @@ class SettingsAboutPage extends StatelessWidget {
             text: "Play Store",
             action: (() => SharedFuncs.appLaunchUrl(Uri.parse(googlePlayUrl)))),
         AppAlertDialogAction(
-            text: "Voce.Chat",
+            text: BrandedConfig.appName,
             action: (() => SharedFuncs.appLaunchUrl(Uri.parse(vocechatUrl))))
       ]);
     }

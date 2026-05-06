@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static Color blackAlmost = Color.fromRGBO(28, 28, 30, 1);
-  static Color primaryBlue = Color(0xFF06B6D4);
+  static Color primaryBlue = Color(0xFF07C160);
+  static Color wechatGreen = Color(0xFF07C160);
+  static Color wechatBubbleGreen = Color(0xFF95EC69);
   static Color coolGrey200 = Color.fromRGBO(229, 231, 235, 1);
   static Color coolGrey500 = Color.fromRGBO(107, 114, 128, 1);
   static Color coolGrey700 = Color.fromRGBO(55, 65, 81, 1);
   static Color cyan100 = Color.fromRGBO(207, 249, 254, 1);
   static Color cyan200 = Color.fromRGBO(165, 240, 252, 1);
-  static Color cyan500 = Color.fromRGBO(6, 182, 212, 1);
+  static Color cyan500 = Color(0xFF07C160);
   static Color darkGrey = Color.fromRGBO(120, 120, 124, 1);
   static Color errorRed = Color.fromRGBO(217, 45, 32, 1);
   static Color grey97 = Color.fromRGBO(97, 97, 97, 1);
@@ -36,7 +38,7 @@ class AppColors {
   static Color barBg = Color.fromRGBO(249, 249, 249, 0.94);
 
   // For Auth pages.
-  static Color centerColor = Color.fromRGBO(0, 113, 236, 1);
-  static Color midColor = const Color.fromRGBO(162, 201, 243, 1);
-  static Color edgeColor = const Color.fromRGBO(233, 235, 237, 1);
+  static Color centerColor = Color(0xFF07C160);
+  static Color midColor = const Color(0xFF95EC69);
+  static Color edgeColor = const Color(0xFFF5F5F5);
 }

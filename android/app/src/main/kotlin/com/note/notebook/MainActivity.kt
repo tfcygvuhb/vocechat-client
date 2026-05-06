@@ -1,4 +1,4 @@
-package com.privoce.vocechatclient
+package com.note.notebook
 import android.content.Context   
 import android.app.NotificationManager
 

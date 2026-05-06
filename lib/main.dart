@@ -251,7 +251,9 @@ class _VoceChatAppState extends State<VoceChatApp> with WidgetsBindingObserver {
             splashColor: Colors.transparent,
             highlightColor: AppColors.grey200,
             fontFamily: 'Inter',
-            primarySwatch: Colors.blue,
+            primarySwatch: Colors.green,
+            primaryColor: AppColors.wechatGreen,
+            colorScheme: ColorScheme.fromSeed(seedColor: AppColors.wechatGreen, primary: AppColors.wechatGreen),
             dividerTheme: DividerThemeData(thickness: 0.5, space: 1),
             textTheme: TextTheme(
                 // headline6:

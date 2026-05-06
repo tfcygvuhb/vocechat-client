@@ -1,6 +1,6 @@
 {   
     "serverPageWelcomeFirstLine":"欢迎使用",
-    "serverPageWelcomeSecondLine":"VoceChat.",
+    "serverPageWelcomeSecondLine":"note笔记.",
     "serverPageHostServer": "服务器 URL",
     "serverPageHistory": "历史",
 
@@ -11,7 +11,7 @@
     "registerNamingPageSignUpFailedContent":"注册过程中遇到错误，请稍后再试或联系服务器所有者寻求帮助。",
 
     "chatServerHelperServerConnectionError": "服务端连接错误",
-    "chatServerHelperServerConnectionErrorContent": "VoceChat 无法获取服务端信息。您可以检查链接格式，如“http”、”https“, 或端口号，或联系服务端拥有者寻求帮助。",
+    "chatServerHelperServerConnectionErrorContent": "note笔记 无法获取服务端信息。您可以检查链接格式，如“http”、”https“, 或端口号，或联系服务端拥有者寻求帮助。",
     "chatServerHelperServerNotInitialized": "服务器未初始化",
     "chatServerHelperServerNotInitializedContent": "请使用网页端完成初始化。",
 
@@ -86,7 +86,7 @@
     "copy":"复制",
     "copyUrl":"拷贝 URL",
     "clearLocalData": "清空本地数据",
-    "clearLocalDataContent": "VoceChat 将会终止运行。所有本地数据都会被移除。",
+    "clearLocalDataContent": "note笔记 将会终止运行。所有本地数据都会被移除。",
     "continueStr": "继续",
     
     "day":"天",
@@ -303,12 +303,12 @@
     "serverInfoSettingDesHint": "服务器描述",
     "serverInfoSettingFooter": "以上更新仅会在重新启动 App 或重新登入后可见。",
 
-    "aboutPageTitle":"关于 VoceChat",
+    "aboutPageTitle":"关于 note笔记",
     "aboutPageCheckUpdates":"检查更新",
     "aboutPageChangeLog":"更新日志",
     "aboutPageUpdateTitleUpToDate":"此版本为最新",
-    "aboutPageUpdateTitleUpToDateContent":"您使用的是最新版本的 VoceChat。",
-    "aboutPageCopyRight":"© Privoce Inc. 保留所有权利。",
+    "aboutPageUpdateTitleUpToDateContent":"您使用的是最新版本的 note笔记。",
+    "aboutPageCopyRight":"© 2026 note笔记。保留所有权利。",
 
     "firebaseEnable": "启用",
 
@@ -349,7 +349,7 @@
     "appQrCodeScanPageInvalidCodeContent":"请获取一个新的邀请链接二维码，或检查您的网络状况。",
 
     "settingsAboutPageNetworkError":"网络错误",
-    "settingsAboutPageNetworkErrorContent":"VoceChat 无法获取最新的版本信息。请您稍后再试。",
+    "settingsAboutPageNetworkErrorContent":"note笔记 无法获取最新的版本信息。请您稍后再试。",
 
     "chatsBarNetworkError": "网络错误",
     "chatsBarNetworkErrorContent": "请检查您的网络状况，或稍后再试。",
@@ -357,16 +357,16 @@
     "chatsBarLoginStatusExpiredContent": "请重新登入。",
 
     "filePageCantOpenFile":"无法打开文件",
-    "filePageCantOpenFileContent":"VoceChat 不支持此文件类型，请尝试用其他 App 打开。",
+    "filePageCantOpenFileContent":"note笔记 不支持此文件类型，请尝试用其他 App 打开。",
     "filePageDownloadFailed":"下载失败",
-    "filePageDownloadFailedContent":"VoceChat 无法下载此文件。它可能已从服务器删除。",
+    "filePageDownloadFailedContent":"note笔记 无法下载此文件。它可能已从服务器删除。",
     "filePageCantFindFile":"无法找到文件",
-    "filePageCantFindFileContent":"VoceChat 无法在本机或服务器找到此文件。它可能已从服务器删除。",
+    "filePageCantFindFileContent":"note笔记 无法在本机或服务器找到此文件。它可能已从服务器删除。",
 
-    "chatTextFieldCameraMicrophonePermission":"VoceChat 需要相机和麦克风权限",
+    "chatTextFieldCameraMicrophonePermission":"note笔记 需要相机和麦克风权限",
     "chatTextFieldCameraMicrophonePermissionContent":"授权相机和麦克风权限以发送图片及视频消息。",
-    "chatTextFieldPhotoPermission":"VoceChat 需要系统相册访问权限",
-    "chatTextFieldPhotoPermissionContent":"请到设置 -> VoceChat 开启权限。",
+    "chatTextFieldPhotoPermission":"note笔记 需要系统相册访问权限",
+    "chatTextFieldPhotoPermissionContent":"请到设置 -> note笔记 开启权限。",
     
     "loginSessionExpires":"登入状态过期",
     "loginSessionExpiresContent":"如果您没有在另一个设备登入，请立刻更改密码，或联系服务器管理员寻求帮助。",

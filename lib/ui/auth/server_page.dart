@@ -8,6 +8,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:voce_widgets/voce_widgets.dart';
 import 'package:vocechat_client/app.dart';
 import 'package:vocechat_client/app_consts.dart';
+import 'package:vocechat_client/branded_config.dart';
 import 'package:vocechat_client/dao/init_dao/user_info.dart';
 import 'package:vocechat_client/dao/org_dao/chat_server.dart';
 import 'package:vocechat_client/dao/org_dao/status.dart';
@@ -34,9 +35,9 @@ class ServerPage extends StatefulWidget {
 
   final bool showClose;
 
-  final _centerColor = const Color.fromRGBO(0, 113, 236, 1);
-  final _midColor = const Color.fromRGBO(162, 201, 243, 1);
-  final _edgeColor = const Color.fromRGBO(233, 235, 237, 1);
+  final _centerColor = AppColors.wechatGreen;
+  final _midColor = AppColors.wechatBubbleGreen;
+  final _edgeColor = AppColors.pageBg;
 
   ServerPage({Key? key, this.showClose = false}) : super(key: key) {
     _bgDeco = BoxDecoration(
@@ -74,6 +75,9 @@ class _ServerPageState extends State<ServerPage> {
   @override
   void initState() {
     super.initState();
+    if (BrandedConfig.defaultServerUrl.isNotEmpty) {
+      _urlController.text = BrandedConfig.defaultServerUrl;
+    }
     _getServerList();
   }
 

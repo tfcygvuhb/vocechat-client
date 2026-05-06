@@ -1,0 +1,80 @@
+name: Android APK Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      default_server_url:
+        description: 'Optional default VoceChat server URL (users can still enter their own when empty)'
+        required: false
+        default: ''
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: stable
+          cache: true
+
+      - name: Install Android SDK 34
+        uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
+
+      - name: Restore signing keystore from secret or create CI key
+        run: |
+          mkdir -p android/release
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/release/note-upload-key.jks
+          else
+            keytool -genkeypair -v -storetype JKS -keystore android/release/note-upload-key.jks -storepass "${ANDROID_KEYSTORE_PASSWORD:-ci-change-me}" -alias "${ANDROID_KEY_ALIAS:-note}" -keypass "${ANDROID_KEY_PASSWORD:-ci-change-me}" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=note,O=note,C=CN"
+          fi
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
+      - name: Build signed release APK
+        run: |
+          flutter pub get
+          flutter build apk --release \
+            --dart-define=APP_NAME=note笔记 \
+            --dart-define=DEFAULT_SERVER_URL="${{ github.event.inputs.default_server_url || vars.DEFAULT_SERVER_URL }}" \
+            --dart-define=DEEPLINK_SCHEME=notechat \
+            --dart-define=SHARE_INVITATION_PREFIX='我用 note笔记 邀请你加入聊天：'
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/note-chat-${GITHUB_REF_NAME:-manual}.apk
+        env:
+          ANDROID_KEYSTORE_PATH: ../release/note-upload-key.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'ci-change-me' }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'ci-change-me' }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'note' }}
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: note-chat-apk
+          path: dist/*.apk
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
+

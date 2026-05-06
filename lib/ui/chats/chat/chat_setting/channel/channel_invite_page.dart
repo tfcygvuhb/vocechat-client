@@ -9,6 +9,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:vocechat_client/branded_config.dart';
 import 'package:voce_widgets/voce_widgets.dart';
 import 'package:vocechat_client/api/lib/group_api.dart';
 import 'package:vocechat_client/app.dart';
@@ -170,7 +171,7 @@ class _ChannelInvitePageState extends State<ChannelInvitePage> {
                     style: TextStyle(color: Colors.white),
                   ),
                   action: () async {
-                    Share.share(_invitationLink ?? "");
+                    Share.share("${BrandedConfig.shareInvitationPrefix}${_invitationLink ?? ""}");
                     return true;
                   },
                 );

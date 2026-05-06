@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:526613312184:android:4ec9dc2559a6a11c487a4d",
         "android_client_info": {
-          "package_name": "com.privoce.vocechatclient"
+          "package_name": "com.note.notebook"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "526613312184-311lgn5nsdu2t3enh68j2nuv19b7mm1a.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.privoce.vocechatclient"
+                "bundle_id": "com.note.notebook"
               }
             }
           ]

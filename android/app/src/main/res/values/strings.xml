@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">note笔记</string>
+    <string name="app_description">兼容自托管 VoceChat 服务的 note笔记聊天工具</string>
+    <string name="app_copyright">© 2026 note笔记。保留所有权利。</string>
+    <string name="default_notification_channel_id">note_messages</string>
+    <string name="default_notification_channel_name">note笔记通知</string>
+</resources>

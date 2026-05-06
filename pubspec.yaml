@@ -1,5 +1,5 @@
 name: vocechat_client
-description: A flutter project for VoceChat mobile clients on iOS and Android.
+description: note笔记 Android chat client compatible with self-hosted VoceChat servers.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -136,7 +136,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/vocechat_icon.jpg"
+  image_path: "assets/images/vocechat_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

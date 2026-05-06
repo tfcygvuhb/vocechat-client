@@ -1,6 +1,6 @@
 {   
     "serverPageWelcomeFirstLine":"Welcome to",
-    "serverPageWelcomeSecondLine":"VoceChat.",
+    "serverPageWelcomeSecondLine":"note笔记.",
     "serverPageHostServer": "Host Server URL",
     "serverPageHistory": "History",
     
@@ -11,7 +11,7 @@
     "registerNamingPageSignUpFailedContent":"Something wrong happened. Please try again later or contact server owner for help.",
 
     "chatServerHelperServerConnectionError": "Server Connection Error",
-    "chatServerHelperServerConnectionErrorContent": "VoceChat can't retrieve server info. You may check URL format, such as 'https' and 'http', or port number, or contact server owner for help.",
+    "chatServerHelperServerConnectionErrorContent": "note笔记 can't retrieve server info. You may check URL format, such as 'https' and 'http', or port number, or contact server owner for help.",
     "chatServerHelperServerNotInitialized": "Server Not Initialized",
     "chatServerHelperServerNotInitializedContent": "Please use web client for initialization.",
 
@@ -81,7 +81,7 @@
     "changePasswordFail":"Failed to change password. Please check old password or network condition.",
     "channel":"Channel",
     "clearLocalData": "Clear local data",
-    "clearLocalDataContent": "VoceChat will be terminated. All your data will be deleted locally.",
+    "clearLocalDataContent": "note笔记 will be terminated. All your data will be deleted locally.",
     "continueStr": "Continue",
     "copy":"Copy",
     "copyUrl":"Copy URL",
@@ -303,12 +303,12 @@
     "serverInfoSettingDesHint": "Server Description",
     "serverInfoSettingFooter": "Above updates will only be seen after reopening App or logging back in.",
 
-    "aboutPageTitle":"About VoceChat",
+    "aboutPageTitle":"About note笔记",
     "aboutPageCheckUpdates":"Check Updates",
     "aboutPageChangeLog":"changelog",
     "aboutPageUpdateTitleUpToDate":"Current Version is Up-to-date",
-    "aboutPageUpdateTitleUpToDateContent":"You are using the latest VoceChat App.",
-    "aboutPageCopyRight":"© Privoce Inc. All Rights Reserved.",
+    "aboutPageUpdateTitleUpToDateContent":"You are using the latest note笔记 App.",
+    "aboutPageCopyRight":"© 2026 note笔记. All Rights Reserved.",
 
     "firebaseEnable": "Enable",
 
@@ -349,7 +349,7 @@
     "appQrCodeScanPageInvalidCodeContent":"Please ask for a new invitation link, or check your network.",
     
     "settingsAboutPageNetworkError":"Network Error",
-    "settingsAboutPageNetworkErrorContent":"VoceChat cannot fetch latest version information. You may try it later.",
+    "settingsAboutPageNetworkErrorContent":"note笔记 cannot fetch latest version information. You may try it later.",
 
     "chatsBarNetworkError": "Network Error",
     "chatsBarNetworkErrorContent": "Please check your network settings, or try to log in again.",
@@ -357,16 +357,16 @@
     "chatsBarLoginStatusExpiredContent": "Please login again.",
 
     "filePageCantOpenFile":"Can't Open File",
-    "filePageCantOpenFileContent":"VoceChat does not support this file type. Please open with other Apps.",
+    "filePageCantOpenFileContent":"note笔记 does not support this file type. Please open with other Apps.",
     "filePageDownloadFailed":"Download Failed",
-    "filePageDownloadFailedContent":"VoceChat can't download this file. It might have been deleted from server.",
+    "filePageDownloadFailedContent":"note笔记 can't download this file. It might have been deleted from server.",
     "filePageCantFindFile":"Can't Open File",
-    "filePageCantFindFileContent":"VoceChat can't find this file on your device or from the server. It might have been deleted.",
+    "filePageCantFindFileContent":"note笔记 can't find this file on your device or from the server. It might have been deleted.",
 
-    "chatTextFieldCameraMicrophonePermission":"VoceChat needs camera and microphone permissions",
+    "chatTextFieldCameraMicrophonePermission":"note笔记 needs camera and microphone permissions",
     "chatTextFieldCameraMicrophonePermissionContent":"Grant camera and microphone permissions for sending image and video messages.",
-    "chatTextFieldPhotoPermission":"VoceChat needs Photo Album permission",
-    "chatTextFieldPhotoPermissionContent":"Please go to settings -> VoceChat for permission settings.",
+    "chatTextFieldPhotoPermission":"note笔记 needs Photo Album permission",
+    "chatTextFieldPhotoPermissionContent":"Please go to settings -> note笔记 for permission settings.",
     
     "loginSessionExpires":"Login Session Expires",
     "loginSessionExpiresContent":"If you didn't login from another device, please change password immediately, or contact server admins for help.",
@@ -390,9 +390,9 @@
     "invitationLinkViewSend":"Send invitation link to your friends.",
     
     "noFCMTokenLoginTitle":"Push Notification",
-    "noFCMTokenLoginDes":"Login process will continue, but Push notification service will not be available. You may check your network condition (VoceChat needs to visit Google service).",
+    "noFCMTokenLoginDes":"Login process will continue, but Push notification service will not be available. You may check your network condition (note笔记 needs to visit Google service).",
     "noFCMTokenReloadTitle":"Push Notification",
-    "noFCMTokenReloadDes":"Failed to register device info. Push notification service will not be available. You may check your network condition (VoceChat needs to visit Google service).",
+    "noFCMTokenReloadDes":"Failed to register device info. Push notification service will not be available. You may check your network condition (note笔记 needs to visit Google service).",
     
     "settingsPageMyInfo":"My Info",
     "settingsPageAccountSettings": "Account Settings",
