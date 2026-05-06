@@ -44,7 +44,10 @@ jobs:
           fi
           echo "ANDROID_KEYSTORE_PATH=$PWD/app/release/note-upload-key.jks" >> "$GITHUB_ENV"
       - name: Build release APK
-        run: gradle :app:assembleRelease --stacktrace
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          gradle :app:assembleRelease --stacktrace --console=plain --warning-mode=all
       - name: Collect APK
         shell: bash
         run: |

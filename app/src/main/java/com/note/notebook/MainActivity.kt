@@ -132,7 +132,18 @@ class MainActivity : Activity() {
         val emailEt = loginEdit("Email", prefs.getString("email", "") ?: "", false)
         val passWrap = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; background = round(Color.WHITE, 14f); setPadding(dp(12),0,dp(8),0) }
         val passEt = EditText(this).apply { hint = "Password"; inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD; textSize = 18f; setSingleLine(true); background = null; setPadding(0,0,0,0) }
-        val eye = TextView(this).apply { text = "👁"; textSize = 25f; gravity = Gravity.CENTER; setTextColor(blue); setOnClickListener { passEt.inputType = if (passEt.inputType and InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD != 0) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD; passEt.setSelection(passEt.text.length) } }
+        val eye = TextView(this).apply {
+            text = "👁"; textSize = 25f; gravity = Gravity.CENTER; setTextColor(blue)
+            setOnClickListener {
+                val visible = (passEt.inputType and InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) != 0
+                passEt.inputType = if (visible) {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                } else {
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                }
+                passEt.setSelection(passEt.text.length)
+            }
+        }
         passWrap.addView(passEt, LinearLayout.LayoutParams(0, dp(64), 1f)); passWrap.addView(eye, LinearLayout.LayoutParams(dp(54), dp(64)))
 
         outer.addView(fieldLabel("Server")); outer.addView(serverEt, LinearLayout.LayoutParams(-1, dp(64)))
@@ -322,10 +333,14 @@ class MainActivity : Activity() {
                 streamClient.newCall(req).execute().use { resp ->
                     if (!resp.isSuccessful) throw RuntimeException("SSE HTTP ${resp.code}")
                     withContext(Dispatchers.Main) { connectionStatus = "已连接(SSE)"; renderHomeList() }
-                    val source = resp.body?.source() ?: return@use
-                    while (!source.exhausted()) {
-                        val line = source.readUtf8Line() ?: continue
-                        if (line.startsWith("data:")) withContext(Dispatchers.Main) { handleEvent(line.removePrefix("data:").trim(), true) }
+                    val source = resp.body?.source()
+                    if (source != null) {
+                        while (!source.exhausted()) {
+                            val line = source.readUtf8Line() ?: continue
+                            if (line.startsWith("data:")) {
+                                withContext(Dispatchers.Main) { handleEvent(line.removePrefix("data:").trim(), true) }
+                            }
+                        }
                     }
                 }
             } catch (_: Exception) { withContext(Dispatchers.Main) { scheduleReconnect() } }
@@ -339,8 +354,8 @@ class MainActivity : Activity() {
     }
 
     private fun handleEvent(raw:String, notify:Boolean){
+        if (raw.isBlank()) return
         runCatching {
-            if (raw.isBlank()) return
             val j = JSONObject(raw); when(j.optString("type")){
                 "chat" -> onChat(j, notify)
                 "related_groups" -> { val a = j.optJSONArray("groups") ?: JSONArray(); for(i in 0 until a.length()){ val g=a.getJSONObject(i); groups[g.optInt("gid")] = g.optString("name", "群组${g.optInt("gid")}") }; renderHomeList() }
@@ -414,7 +429,19 @@ class MainActivity : Activity() {
     private fun round(color:Int, radius:Float)=GradientDrawable().apply{ setColor(color); cornerRadius=dp(radius.toInt()).toFloat() }
     private fun gradientBg()=GradientDrawable(GradientDrawable.Orientation.TOP_RIGHT_BOTTOM_LEFT, intArrayOf(Color.rgb(35,155,238), Color.rgb(235,238,242), Color.rgb(244,245,247)))
     private fun fieldLabel(s:String)=TextView(this).apply{text=s; textSize=17f; setTextColor(textDark); setPadding(0, dp(18),0,dp(6))}
-    private fun loginEdit(h:String,v:String,password:Boolean)=EditText(this).apply{hint=h; setText(v); textSize=18f; setSingleLine(true); inputType=if(password) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else InputType.TYPE_CLASS_TEXT or if(h.contains("Email")) InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS else InputType.TYPE_TEXT_VARIATION_URI; background=round(Color.WHITE,14f); setPadding(dp(18),0,dp(18),0)}
+    private fun loginEdit(h:String,v:String,password:Boolean)=EditText(this).apply{
+        hint=h; setText(v); textSize=18f; setSingleLine(true)
+        inputType = if (password) {
+            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        } else {
+            InputType.TYPE_CLASS_TEXT or (if (h.contains("Email", ignoreCase = true)) {
+                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            } else {
+                InputType.TYPE_TEXT_VARIATION_URI
+            })
+        }
+        background=round(Color.WHITE,14f); setPadding(dp(18),0,dp(18),0)
+    }
     private fun bigButton(s:String,c:Int)=Button(this).apply{text=s; textSize=18f; setTextColor(Color.WHITE); background=round(c,14f); isAllCaps=false}
     private fun pill(s:String,fn:()->Unit)=TextView(this).apply{text=s; gravity=Gravity.CENTER; textSize=15f; setTextColor(Color.WHITE); background=round(green,22f); setOnClickListener{fn()}}
     private fun iconText(s:String,fn:()->Unit)=TextView(this).apply{text=s; textSize=28f; gravity=Gravity.CENTER; setTextColor(textDark); setOnClickListener{fn()}; setPadding(dp(10),0,dp(10),0)}
