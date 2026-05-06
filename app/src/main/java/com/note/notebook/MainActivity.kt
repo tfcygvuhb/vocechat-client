@@ -427,7 +427,7 @@ class MainActivity : Activity() {
     private fun toast(s:String)=Toast.makeText(this,s,Toast.LENGTH_LONG).show()
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
     private fun round(color:Int, radius:Float)=GradientDrawable().apply{ setColor(color); cornerRadius=dp(radius.toInt()).toFloat() }
-    private fun gradientBg()=GradientDrawable(GradientDrawable.Orientation.TOP_RIGHT_BOTTOM_LEFT, intArrayOf(Color.rgb(35,155,238), Color.rgb(235,238,242), Color.rgb(244,245,247)))
+    private fun gradientBg()=GradientDrawable(GradientDrawable.Orientation.TR_BL, intArrayOf(Color.rgb(35,155,238), Color.rgb(235,238,242), Color.rgb(244,245,247)))
     private fun fieldLabel(s:String)=TextView(this).apply{text=s; textSize=17f; setTextColor(textDark); setPadding(0, dp(18),0,dp(6))}
     private fun loginEdit(h:String,v:String,password:Boolean)=EditText(this).apply{
         hint=h; setText(v); textSize=18f; setSingleLine(true)
