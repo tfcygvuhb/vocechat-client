@@ -77,12 +77,11 @@ subprojects { subproject ->
     }
 }
 
-
 // Some legacy plugin build.gradle files set compileSdkVersion after the Android
-// plugin is applied. Re-apply the modern SDK level after project evaluation so
-// Java 17 compilation remains valid for modules such as uni_links.
-subprojects { subproject ->
-    subproject.afterEvaluate {
+// plugin is applied. Re-apply the modern SDK level once all projects are
+// evaluated so Java 17 compilation remains valid for modules such as uni_links.
+gradle.projectsEvaluated {
+    subprojects.each { subproject ->
         def androidExt = subproject.extensions.findByName('android')
         if (androidExt != null) {
             if (androidExt.hasProperty('compileSdk')) {
