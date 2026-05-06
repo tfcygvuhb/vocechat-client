@@ -37,6 +37,9 @@ subprojects {
 subprojects { subproject ->
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
+        if (androidExt != null && androidExt.hasProperty('compileSdk')) {
+            androidExt.compileSdk = 36
+        }
         if (androidExt != null && androidExt.hasProperty('compileOptions')) {
             androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
             androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
@@ -73,3 +76,4 @@ subprojects { subproject ->
         kotlinOptions.jvmTarget = '17'
     }
 }
+
