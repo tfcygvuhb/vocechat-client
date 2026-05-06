@@ -37,6 +37,10 @@ subprojects {
 subprojects { subproject ->
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
+        if (androidExt != null && androidExt.hasProperty('compileOptions')) {
+            androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+            androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
+        }
         if (androidExt != null && androidExt.hasProperty('buildFeatures')) {
             androidExt.buildFeatures.buildConfig = true
         }
@@ -62,3 +66,10 @@ tasks.register("clean", Delete) {
 
 
 
+
+
+subprojects { subproject ->
+    subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions.jvmTarget = '17'
+    }
+}
