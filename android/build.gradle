@@ -12,6 +12,15 @@ buildscript {
         // END: FlutterFire Configuration
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion kotlin_version
+                details.because 'Keep Kotlin buildscript artifacts aligned with the Kotlin Gradle plugin.'
+            }
+        }
+    }
 }
 
 allprojects {
