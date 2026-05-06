@@ -24,3 +24,12 @@ CI 支持以下 GitHub Secrets：
 - `ANDROID_KEY_PASSWORD`
 
 未配置时会生成 CI 临时证书；正式分发建议配置固定证书。
+
+## v2.1.1 后台与状态栏修复
+
+- 适配 Android 15/16 强制 edge-to-edge：WebView、进度条、悬浮设置按钮会避开状态栏和底部导航栏，不再和手机时间/电量图标重叠。
+- 新增 Android 前台保活服务：安装打开后会显示“note笔记正在后台运行”的低优先级常驻通知，用于尽量保持 WebView 进程和网页连接。
+- 新增消息通知通道和网页 Notification API 转发：VoceChat 网页在前台/后台仍存活时触发 Web Notification，会转成 Android 状态栏/锁屏通知。
+- 设置弹窗新增“后台保活”“系统通知设置”“自启动/后台管理设置”入口，方便在 MIUI/ColorOS/vivo/Huawei 等系统里放行自启动、后台运行、锁屏通知。
+
+限制说明：如果用户在系统最近任务里强行划掉、系统杀进程，或在应用信息里“强行停止”，普通 Android 应用无法保证继续运行；要做到微信/Telegram 那种完全可靠离线推送，需要接入 VoceChat 原生 WebSocket/FCM/厂商推送服务。

@@ -5,7 +5,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DownloadManager
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -16,10 +20,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.DownloadListener
+import android.webkit.JavascriptInterface
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -62,6 +71,9 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        configureSystemBars()
+        KeepAliveService.ensureMessageChannel(this)
+        runCatching { KeepAliveService.start(this) }
         server = prefs.getString("server", "") ?: ""
         handleDeepLink(intent)
         requestRuntimePermissions()
@@ -102,7 +114,7 @@ class MainActivity : Activity() {
         val bg = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(28), dp(80), dp(28), dp(28))
+            setPadding(dp(28), dp(80) + statusBarHeight(), dp(28), dp(28) + navigationBarHeight())
             setBackgroundColor(Color.rgb(247, 248, 250))
         }
         setContentView(bg)
@@ -167,9 +179,29 @@ class MainActivity : Activity() {
             progress = 0
             visibility = View.VISIBLE
         }
+        root.setBackgroundColor(Color.WHITE)
+        root.setOnApplyWindowInsetsListener { _, insets ->
+            if (Build.VERSION.SDK_INT >= 20) {
+                webView.setPadding(0, insets.systemWindowInsetTop, 0, insets.systemWindowInsetBottom)
+                webView.clipToPadding = false
+                val progressLp = progress.layoutParams as FrameLayout.LayoutParams
+                progressLp.topMargin = insets.systemWindowInsetTop
+                progress.layoutParams = progressLp
+                val gearLp = (root.findViewWithTag<View>("settings_gear")?.layoutParams as? FrameLayout.LayoutParams)
+                if (gearLp != null) {
+                    gearLp.topMargin = insets.systemWindowInsetTop + dp(6)
+                    gearLp.rightMargin = dp(8)
+                    root.findViewWithTag<View>("settings_gear").layoutParams = gearLp
+                }
+            }
+            insets
+        }
         root.addView(webView, FrameLayout.LayoutParams(-1, -1))
         root.addView(progress, FrameLayout.LayoutParams(-1, dp(3), Gravity.TOP))
-        root.addView(nativeSettingsButton(), FrameLayout.LayoutParams(dp(44), dp(44), Gravity.TOP or Gravity.RIGHT))
+        root.addView(nativeSettingsButton(), FrameLayout.LayoutParams(dp(40), dp(40), Gravity.TOP or Gravity.RIGHT).apply {
+            topMargin = statusBarHeight() + dp(6)
+            rightMargin = dp(8)
+        })
 
         CookieManager.getInstance().setAcceptCookie(true)
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
@@ -186,6 +218,7 @@ class MainActivity : Activity() {
             userAgentString = "$userAgentString note-vocechat-android/2.1"
         }
         WebView.setWebContentsDebuggingEnabled(false)
+        webView.addJavascriptInterface(NativeNotifyBridge(), "NoteAndroid")
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
@@ -199,6 +232,7 @@ class MainActivity : Activity() {
                 super.onPageFinished(view, url)
                 progress.visibility = View.GONE
                 CookieManager.getInstance().flush()
+                injectNotificationBridge()
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
@@ -273,6 +307,7 @@ class MainActivity : Activity() {
     }
 
     private fun nativeSettingsButton(): TextView = TextView(this).apply {
+        tag = "settings_gear"
         text = "⚙"
         textSize = 22f
         gravity = Gravity.CENTER
@@ -293,9 +328,38 @@ class MainActivity : Activity() {
             setText(server)
             selectAll()
         }
+        val wrap = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(4), 0, dp(4), 0)
+            addView(input, LinearLayout.LayoutParams(-1, dp(52)))
+            addView(Button(this@MainActivity).apply {
+                text = "开启/检查后台保活"
+                isAllCaps = false
+                setOnClickListener {
+                    runCatching { KeepAliveService.start(this@MainActivity) }
+                    openBatteryOptimizationSettings()
+                }
+            }, LinearLayout.LayoutParams(-1, dp(48)))
+            addView(Button(this@MainActivity).apply {
+                text = "打开系统通知设置"
+                isAllCaps = false
+                setOnClickListener { openNotificationSettings() }
+            }, LinearLayout.LayoutParams(-1, dp(48)))
+            addView(Button(this@MainActivity).apply {
+                text = "打开自启动/后台管理设置"
+                isAllCaps = false
+                setOnClickListener { openAutoStartSettings() }
+            }, LinearLayout.LayoutParams(-1, dp(48)))
+            addView(TextView(this@MainActivity).apply {
+                text = "说明：安卓不允许普通应用被强行划掉或强行停止后仍永久运行。这里会开启前台服务、通知渠道、电池优化和厂商自启动设置；要做到完全可靠的新消息推送，后续需要接入 VoceChat 原生 WebSocket/FCM 推送。"
+                textSize = 12f
+                setTextColor(subText)
+                setPadding(0, dp(8), 0, 0)
+            })
+        }
         AlertDialog.Builder(this)
             .setTitle("VoceChat 服务器")
-            .setView(input)
+            .setView(wrap)
             .setNegativeButton("取消", null)
             .setNeutralButton("清除登录/服务器") { _, _ ->
                 CookieManager.getInstance().removeAllCookies(null)
@@ -332,6 +396,126 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun configureSystemBars() {
+        window.statusBarColor = Color.WHITE
+        window.navigationBarColor = Color.rgb(247, 247, 247)
+        if (Build.VERSION.SDK_INT >= 23) {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+            }
+        }
+    }
+
+    private fun injectNotificationBridge() {
+        val js = """
+            (function(){
+              if (window.__noteAndroidNotifyInstalled) return;
+              window.__noteAndroidNotifyInstalled = true;
+              function send(title, options) {
+                try {
+                  var body = options && options.body ? String(options.body) : '';
+                  window.NoteAndroid.showNotification(String(title || 'note笔记'), body);
+                } catch(e) {}
+              }
+              var NativeNotification = function(title, options) { send(title, options || {}); };
+              NativeNotification.permission = 'granted';
+              NativeNotification.requestPermission = function(cb) {
+                if (cb) cb('granted');
+                return Promise.resolve('granted');
+              };
+              window.Notification = NativeNotification;
+              window.dispatchEvent(new Event('note-android-notification-ready'));
+            })();
+        """.trimIndent()
+        webView.evaluateJavascript(js, null)
+    }
+
+    inner class NativeNotifyBridge {
+        @JavascriptInterface
+        fun showNotification(title: String?, body: String?) {
+            runOnUiThread { showMessageNotification(title ?: "note笔记", body ?: "收到新消息") }
+        }
+    }
+
+    private fun showMessageNotification(title: String, body: String) {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST)
+            return
+        }
+        val pending = PendingIntent.getActivity(
+            this,
+            2,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= 23) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+        val builder = if (Build.VERSION.SDK_INT >= 26) {
+            Notification.Builder(this, KeepAliveService.CHANNEL_MESSAGES)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this)
+        }
+        val notification = builder
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(Notification.BigTextStyle().bigText(body))
+            .setContentIntent(pending)
+            .setAutoCancel(true)
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .build()
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+            .notify((System.currentTimeMillis() % Int.MAX_VALUE).toInt(), notification)
+    }
+
+    private fun openNotificationSettings() {
+        val intent = if (Build.VERSION.SDK_INT >= 26) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+        }
+        startActivity(intent)
+    }
+
+    private fun openBatteryOptimizationSettings() {
+        try {
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            if (Build.VERSION.SDK_INT >= 23 && !pm.isIgnoringBatteryOptimizations(packageName)) {
+                startActivity(
+                    Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        .setData(Uri.parse("package:$packageName"))
+                )
+                return
+            }
+        } catch (_: Exception) {
+        }
+        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+    }
+
+    private fun openAutoStartSettings() {
+        val candidates = listOf(
+            Intent().setClassName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"),
+            Intent().setClassName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"),
+            Intent().setClassName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"),
+            Intent().setClassName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"),
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+        )
+        val opened = candidates.any {
+            try {
+                startActivity(it)
+                true
+            } catch (_: Exception) {
+                false
+            }
+        }
+        if (!opened) toast("请在系统设置里允许 note笔记 自启动、后台运行、通知和锁屏通知")
+    }
+
     private fun normalizeServer(raw: String): String {
         val x = raw.trim().trimEnd('/')
         return if (x.startsWith("http://") || x.startsWith("https://")) x else "https://$x"
@@ -344,4 +528,8 @@ class MainActivity : Activity() {
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
+    private fun statusBarHeight(): Int = resources.getIdentifier("status_bar_height", "dimen", "android")
+        .takeIf { it > 0 }?.let { resources.getDimensionPixelSize(it) } ?: 0
+    private fun navigationBarHeight(): Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        .takeIf { it > 0 }?.let { resources.getDimensionPixelSize(it) } ?: 0
 }
