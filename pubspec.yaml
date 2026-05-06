@@ -99,6 +99,7 @@ dependencies:
   
 
 dependency_overrides:
+  sensors_plus: 4.0.2
   azlistview:
     git: 
       url: https://github.com/shuotwang/azlistview.git
@@ -207,3 +208,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
