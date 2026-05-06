@@ -99,7 +99,7 @@ dependencies:
   
 
 dependency_overrides:
-  win32: ^5.5.4
+  win32: 5.5.4
   sensors_plus: 4.0.2
   azlistview:
     git: 
@@ -209,5 +209,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
 
 
