@@ -29,7 +29,31 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+// AGP 8 requires every Android library module to declare a namespace.
+// Several legacy Flutter plugins used by this project predate that requirement
+// and only declare the package in AndroidManifest.xml. Derive a safe namespace
+// for those cached plugin modules at build time so release CI can stay on a
+// modern Android Gradle Plugin without forking each plugin.
+subprojects { subproject ->
+    subproject.plugins.withId('com.android.library') {
+        def androidExt = subproject.extensions.findByName('android')
+        if (androidExt != null && androidExt.hasProperty('namespace') && androidExt.namespace == null) {
+            def manifestFile = subproject.file('src/main/AndroidManifest.xml')
+            def namespaceFromManifest = null
+            if (manifestFile.exists()) {
+                def manifestText = manifestFile.getText('UTF-8')
+                def matcher = manifestText =~ /package="([^"]+)"/
+                if (matcher.find()) {
+                    namespaceFromManifest = matcher.group(1)
+                }
+            }
+            androidExt.namespace = namespaceFromManifest ?: "com.note.notebook.${subproject.name.replace('-', '_')}"
+        }
+    }
+}
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+
 
