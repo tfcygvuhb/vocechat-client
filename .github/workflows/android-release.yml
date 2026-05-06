@@ -1,0 +1,62 @@
+name: Android APK Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+      - name: Prepare release keystore
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p app/release
+          : "${ANDROID_KEY_ALIAS:=note}"
+          : "${ANDROID_KEYSTORE_PASSWORD:=ci-change-me}"
+          : "${ANDROID_KEY_PASSWORD:=ci-change-me}"
+          echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD" >> "$GITHUB_ENV"
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > app/release/note-upload-key.jks
+          else
+            keytool -genkeypair -v -storetype JKS -keystore app/release/note-upload-key.jks -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" -keypass "$ANDROID_KEY_PASSWORD" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=note,O=note,C=CN"
+          fi
+          echo "ANDROID_KEYSTORE_PATH=$PWD/app/release/note-upload-key.jks" >> "$GITHUB_ENV"
+      - name: Build release APK
+        run: gradle :app:assembleRelease --stacktrace
+      - name: Collect APK
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/note-vocechat-${GITHUB_REF_NAME:-manual}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: note-vocechat-apk
+          path: dist/*.apk
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
