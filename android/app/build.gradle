@@ -39,7 +39,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.note.notebook"
-    compileSdkVersion 36
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -103,4 +103,5 @@ dependencies {
     // @Solve the problem "Cannot fit requested classes in a single dex file"
     implementation 'com.android.support:multidex:1.0.3'
 }
+
 
