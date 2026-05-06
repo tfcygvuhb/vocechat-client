@@ -16,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      DEFAULT_SERVER_URL: ${{ github.event.inputs.default_server_url || vars.DEFAULT_SERVER_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,47 +28,52 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.12'
+          flutter-version: '3.16.9'
           channel: stable
           cache: true
 
-      - name: Install Android SDK 34
-        uses: android-actions/setup-android@v3
-      - run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0'
-
-      - name: Restore signing keystore from secret or create CI key
+      - name: Prepare signing keystore
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p android/release
+          : "${ANDROID_KEY_ALIAS:=note}"
+          : "${ANDROID_KEYSTORE_PASSWORD:=ci-change-me}"
+          : "${ANDROID_KEY_PASSWORD:=ci-change-me}"
+          echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD" >> "$GITHUB_ENV"
           if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/release/note-upload-key.jks
           else
-            keytool -genkeypair -v -storetype JKS -keystore android/release/note-upload-key.jks -storepass "${ANDROID_KEYSTORE_PASSWORD:-ci-change-me}" -alias "${ANDROID_KEY_ALIAS:-note}" -keypass "${ANDROID_KEY_PASSWORD:-ci-change-me}" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=note,O=note,C=CN"
+            keytool -genkeypair -v -storetype JKS \
+              -keystore android/release/note-upload-key.jks \
+              -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+              -alias "$ANDROID_KEY_ALIAS" \
+              -keypass "$ANDROID_KEY_PASSWORD" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=note,O=note,C=CN"
           fi
-        env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
+      - name: Flutter pub get
+        run: flutter pub get
 
       - name: Build signed release APK
         run: |
-          flutter pub get
           flutter build apk --release \
             --dart-define=APP_NAME=note笔记 \
-            --dart-define=DEFAULT_SERVER_URL="${{ github.event.inputs.default_server_url || vars.DEFAULT_SERVER_URL }}" \
+            --dart-define=DEFAULT_SERVER_URL="$DEFAULT_SERVER_URL" \
             --dart-define=DEEPLINK_SCHEME=notechat \
             --dart-define=SHARE_INVITATION_PREFIX='我用 note笔记 邀请你加入聊天：'
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk dist/note-chat-${GITHUB_REF_NAME:-manual}.apk
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/note-chat-${GITHUB_REF_NAME:-manual}.apk"
         env:
           ANDROID_KEYSTORE_PATH: ../release/note-upload-key.jks
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'ci-change-me' }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'ci-change-me' }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'note' }}
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
@@ -77,4 +87,3 @@ jobs:
         with:
           files: dist/*.apk
           generate_release_notes: true
-
