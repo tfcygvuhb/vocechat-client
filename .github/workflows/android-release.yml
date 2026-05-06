@@ -33,7 +33,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.9'
+          flutter-version: '3.24.5'
           channel: stable
           cache: true
 
@@ -87,3 +87,4 @@ jobs:
         with:
           files: dist/*.apk
           generate_release_notes: true
+

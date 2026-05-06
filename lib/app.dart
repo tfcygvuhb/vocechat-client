@@ -13,7 +13,7 @@ import 'package:vocechat_client/services/status_service.dart';
 import 'package:simple_logger/simple_logger.dart';
 import 'package:vocechat_client/shared_funcs.dart';
 
-import 'UI/chats/chats/chats_main_page.dart';
+import 'package:vocechat_client/ui/chats/chats/chats_main_page.dart';
 
 /// A place for app infos and services.
 class App {
@@ -128,3 +128,4 @@ class AuthData {
       required this.refreshToken,
       required this.expiredIn});
 }
+
